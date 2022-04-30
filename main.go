@@ -2,23 +2,28 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/gocolly/colly"
 )
 
-func main (){
-	c := colly.NewCollector(colly.AllowedDomains("www.sofascore.com", "sofascore.com") )
+func main() {
+	crawler()
+}
 
-	c.OnHTML("span.styles__PlayerName-sc-1loq6tv-14", func(h *colly.HTMLElement) {
-		fmt.Println("Nome do Jogador:",h.Text)
+func crawler() {
+	c := colly.NewCollector(
+		colly.MaxDepth(10),
+	)
+
+	c.OnRequest(func(r *colly.Request) {
+		fmt.Println("Visiting...", r.URL.String())
 	})
 
+	c.OnHTML("div > a", func(e *colly.HTMLElement) {
+		// listPlayers := e.ChildAttrs("a", "href")
+		fmt.Println("Element: ", e)
 
-	c.OnHTML("div.styles__Container-sc-3ao04p-4 table.styles__StatisticsGroupTable-sc-3ao04p-6 tr td", func(h *colly.HTMLElement) {
-		selection := h.DOM
-		
-		fmt.Println(selection.Find("td").Text())
-		fmt.Println("atributo:",h.Text)
 	})
 
-	c.Visit("https://www.sofascore.com/player/hulk/34705")
+	c.Visit("https://www.sofascore.com/tournament/football/brazil/brasileiro-serie-a/325")
 }
