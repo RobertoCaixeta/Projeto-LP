@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sort"
 )
 
 type Posicao struct {
@@ -54,6 +55,36 @@ type Response struct {
 		Foto                string      `json:"foto"`
 	} `json:"atletas"`
 }
+/*func formacao(numZagueiro, numLateral, numMeio, numAtacante int, atletas []Atleta) map[string][]string{
+	// tecnico
+	i := 0
+	for _, atleta := range atletas{
+		for i < numZagueiro, i++{
+		// enquanto tiver zagueiro 
+			atleta[0]
+			fmt.Println("Tecnico:", zagueiro)
+		}
+	}	
+	resultado := make(map[string][]string)
+	resultado["zagueiro"] = ["zagueiro1"]
+	return resultado
+	zagueiros := 
+	numGoleiro, numTecnico := 1, 1
+	for _, atleta := range atletas{
+		// se ele ja pegou todas as posicoes
+		if zagueiro == 0 && lateral == 0 && meio == 0 && ataque == 0{
+			return resultado
+		}
+
+		if atleta.PosicaoID == 6 && tecnico != 0{
+			tecnico -= 1
+		}
+		if atleta.PosicaoID == 6{
+			return atleta.Nome
+		}
+	
+
+}*/
 
 func getCartolaData() Response {
 	res, err := http.Get("https://api.cartola.globo.com/atletas/mercado")
@@ -84,6 +115,30 @@ func PrettyPrint(i interface{}) string {
 	return string(s)
 }
 
+
+func getTecnico(data []Atleta, tecnicos []Atleta) []Atleta{
+	for _, atleta := range data{
+		var player Atleta
+		player.Nome = atleta.Nome
+		player.RodadaID = atleta.RodadaID
+		player.JogosNum = atleta.JogosNum
+		player.MediaNum = atleta.MediaNum
+		player.PrecoNum = atleta.PrecoNum
+		player.ClubeID = atleta.ClubeID
+		player.PosicaoID  = atleta.PosicaoID
+		player.PontosNum = atleta.PontosNum
+		player.VariacaoNum = atleta.VariacaoNum
+
+		if player.PosicaoID != 6{
+			break
+		}
+		tecnicos = append(tecnicos, player)
+	}
+	return tecnicos
+}
+
+
+
 func main() {
 	// baseUrl := "https://api.cartola.globo.com/"
 
@@ -91,6 +146,12 @@ func main() {
 
 	var atletas []Atleta
 	// var clubes []Clube
+	// var zagueiros []Atleta
+	// var laterais []Atleta
+	// var meias []Atleta
+	// var atacantes []Atleta
+	var tecnicos []Atleta
+	//var goleiros []Atleta
 
 	for _, atleta := range data.Atletas {
 		var player Atleta
@@ -107,6 +168,18 @@ func main() {
 		atletas = append(atletas, player)
 	}
 
-	file, _ := json.MarshalIndent(atletas, "", " ")
-	_ = ioutil.WriteFile("cartola.json", file, 0644)
+	sort.SliceStable(atletas, 
+		func (i, j int) bool{
+			if atletas[i].PosicaoID != atletas[j].PosicaoID{
+				return atletas[i].PosicaoID > atletas[j].PosicaoID
+			}
+			return atletas[i].PontosNum > atletas[j].PontosNum
+	})
+
+	tecnicos = getTecnico(atletas, tecnicos)
+	fmt.Println(len(tecnicos))
+	
+	
+	// file, _ := json.MarshalIndent(atletas, "", " ")
+	// _ = ioutil.WriteFile("cartola.json", file, 0644)
 }
