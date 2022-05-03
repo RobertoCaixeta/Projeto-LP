@@ -115,8 +115,9 @@ func PrettyPrint(i interface{}) string {
 	return string(s)
 }
 
+func getAtletaId(data []Atleta, id int) []Atleta{
+	var s []Atleta
 
-func getTecnico(data []Atleta, tecnicos []Atleta) []Atleta{
 	for _, atleta := range data{
 		var player Atleta
 		player.Nome = atleta.Nome
@@ -129,12 +130,12 @@ func getTecnico(data []Atleta, tecnicos []Atleta) []Atleta{
 		player.PontosNum = atleta.PontosNum
 		player.VariacaoNum = atleta.VariacaoNum
 
-		if player.PosicaoID != 6{
-			break
+		if player.PosicaoID == id {
+			s = append(s, player)
 		}
-		tecnicos = append(tecnicos, player)
+		
 	}
-	return tecnicos
+	return s
 }
 
 
@@ -145,13 +146,6 @@ func main() {
 	data := getCartolaData()
 
 	var atletas []Atleta
-	// var clubes []Clube
-	// var zagueiros []Atleta
-	// var laterais []Atleta
-	// var meias []Atleta
-	// var atacantes []Atleta
-	var tecnicos []Atleta
-	//var goleiros []Atleta
 
 	for _, atleta := range data.Atletas {
 		var player Atleta
@@ -176,9 +170,22 @@ func main() {
 			return atletas[i].PontosNum > atletas[j].PontosNum
 	})
 
-	tecnicos = getTecnico(atletas, tecnicos)
-	fmt.Println(len(tecnicos))
+	fmt.Println(len(atletas))
+
+	goleiros := getAtletaId(atletas, 1)
+	laterais := getAtletaId(atletas, 2)
+	zagueiros := getAtletaId(atletas, 3)
+	meias := getAtletaId(atletas, 4)
+	atacantes := getAtletaId(atletas, 5)
+	tecnicos := getAtletaId(atletas, 6)
 	
+	fmt.Println("Numero de Goleiros:", len(goleiros))
+	fmt.Println("Numero de Laterais:", len(laterais))
+	fmt.Println("Numero de Zagueiros:", len(zagueiros))
+	fmt.Println("Numero de Meias:", len(meias))
+	fmt.Println("Numero de Atacantes:", len(atacantes))
+	fmt.Println("Numero de Tecnicos:", len(tecnicos))
+	fmt.Println(len(goleiros) + len(laterais) + len(zagueiros) + len(meias) + len(atacantes) + len(tecnicos))
 	
 	// file, _ := json.MarshalIndent(atletas, "", " ")
 	// _ = ioutil.WriteFile("cartola.json", file, 0644)
