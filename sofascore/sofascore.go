@@ -7,6 +7,7 @@ import (
 	"strings"
 	"fmt"
 	"github.com/gocolly/colly"
+	//"io/ioutil"
 )
 
 // Course stores information about a coursera course
@@ -90,8 +91,5 @@ func main() {
 
 	// Dump json to the standard output
 	enc.Encode(players)
+	
 }
-
-	
-	
-	

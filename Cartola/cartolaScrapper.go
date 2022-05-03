@@ -22,17 +22,15 @@ type Clube struct {
 }
 
 type Atleta struct {
+	Nome             string
 	RodadaID         int
 	ClubeID          int
-	Posicao          string
+	PosicaoID        int
 	PontosNum        float64
 	PrecoNum         float64
 	VariacaoNum      float64
 	MediaNum         float64
 	JogosNum         int
-	Apelido          string
-	ApelidoAbreviado string
-	Nome             string
 }
 
 type Response struct {
@@ -96,19 +94,19 @@ func main() {
 
 	for _, atleta := range data.Atletas {
 		var player Atleta
-		player.Apelido = atleta.Apelido
+		player.Nome = atleta.Apelido
+		player.RodadaID = atleta.RodadaID
 		player.JogosNum = atleta.JogosNum
-		player.ApelidoAbreviado = atleta.ApelidoAbreviado
 		player.MediaNum = atleta.MediaNum
+		player.PrecoNum = atleta.PrecoNum
+		player.ClubeID = atleta.ClubeID
+		player.PosicaoID  = atleta.PosicaoID
+		player.PontosNum = atleta.PontosNum
+		player.VariacaoNum = atleta.VariacaoNum
 
 		atletas = append(atletas, player)
 	}
 
-	for _, atleta := range atletas {
-		fmt.Println("Apelido: ", atleta.Apelido)
-		fmt.Println("Qtd Jogos: ", atleta.JogosNum)
-		fmt.Println("Apeliado Abreviado: ", atleta.ApelidoAbreviado)
-		fmt.Println("Media de pontos: ", atleta.MediaNum)
-		fmt.Println()
-	}
+	file, _ := json.MarshalIndent(atletas, "", " ")
+	_ = ioutil.WriteFile("cartola.json", file, 0644)
 }
