@@ -115,8 +115,15 @@ func PrettyPrint(i interface{}) string {
 	return string(s)
 }
 
-func getAtletaId(data []Atleta, id int) []Atleta{
-	var s []Atleta
+func formacao(data []Atleta, numLateral, numZagueiro, numMeia, numAtacante int){
+	getAtletaId(data, 1, "Goleiro", 1)
+	getAtletaId(data, 2, "Lateral", numLateral)
+	getAtletaId(data, 3, "Zagueiro", numZagueiro)
+	getAtletaId(data, 4, "Meia", numMeia)
+	getAtletaId(data, 5, "Atacante", numAtacante)
+	getAtletaId(data, 6, "Técnico", 1)
+}
+func getAtletaId(data []Atleta, id int, posicao string, cont int){
 
 	for _, atleta := range data{
 		var player Atleta
@@ -130,12 +137,11 @@ func getAtletaId(data []Atleta, id int) []Atleta{
 		player.PontosNum = atleta.PontosNum
 		player.VariacaoNum = atleta.VariacaoNum
 
-		if player.PosicaoID == id {
-			s = append(s, player)
+		if player.PosicaoID == id && cont != 0{
+			fmt.Println(posicao + ":", player.Nome + ";", "Pontuação:", player.PontosNum, "Media", player.MediaNum)
+			cont -= 1
 		}
-		
 	}
-	return s
 }
 
 
@@ -170,22 +176,24 @@ func main() {
 			return atletas[i].PontosNum > atletas[j].PontosNum
 	})
 
-	fmt.Println(len(atletas))
-
-	goleiros := getAtletaId(atletas, 1)
-	laterais := getAtletaId(atletas, 2)
-	zagueiros := getAtletaId(atletas, 3)
-	meias := getAtletaId(atletas, 4)
-	atacantes := getAtletaId(atletas, 5)
-	tecnicos := getAtletaId(atletas, 6)
+	fmt.Println("Time da Rodada")
+	formacao(atletas, 0, 3, 4, 3)
 	
-	fmt.Println("Numero de Goleiros:", len(goleiros))
-	fmt.Println("Numero de Laterais:", len(laterais))
-	fmt.Println("Numero de Zagueiros:", len(zagueiros))
-	fmt.Println("Numero de Meias:", len(meias))
-	fmt.Println("Numero de Atacantes:", len(atacantes))
-	fmt.Println("Numero de Tecnicos:", len(tecnicos))
-	fmt.Println(len(goleiros) + len(laterais) + len(zagueiros) + len(meias) + len(atacantes) + len(tecnicos))
+	sort.SliceStable(atletas, 
+		func (i, j int) bool{
+			return atletas[i].MediaNum > atletas[j].MediaNum
+	})
+	fmt.Println("----------------------------------------------")
+	fmt.Println("Time do Campeonato")
+	formacao(atletas, 0, 3, 4, 3)
+	
+	// fmt.Println("Numero de Goleiros:", len(goleiros))
+	// fmt.Println("Numero de Laterais:", len(laterais))
+	// fmt.Println("Numero de Zagueiros:", len(zagueiros))
+	// fmt.Println("Numero de Meias:", len(meias))
+	// fmt.Println("Numero de Atacantes:", len(atacantes))
+	// fmt.Println("Numero de Tecnicos:", len(tecnicos))
+	// fmt.Println(len(goleiros) + len(laterais) + len(zagueiros) + len(meias) + len(atacantes) + len(tecnicos))
 	
 	// file, _ := json.MarshalIndent(atletas, "", " ")
 	// _ = ioutil.WriteFile("cartola.json", file, 0644)
