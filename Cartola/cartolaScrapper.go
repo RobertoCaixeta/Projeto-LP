@@ -58,36 +58,6 @@ type Response struct {
 		Foto                string      `json:"foto"`
 	} `json:"atletas"`
 }
-/*func formacao(numZagueiro, numLateral, numMeio, numAtacante int, atletas []Atleta) map[string][]string{
-	// tecnico
-	i := 0
-	for _, atleta := range atletas{
-		for i < numZagueiro, i++{
-		// enquanto tiver zagueiro 
-			atleta[0]
-			fmt.Println("Tecnico:", zagueiro)
-		}
-	}	
-	resultado := make(map[string][]string)
-	resultado["zagueiro"] = ["zagueiro1"]
-	return resultado
-	zagueiros := 
-	numGoleiro, numTecnico := 1, 1
-	for _, atleta := range atletas{
-		// se ele ja pegou todas as posicoes
-		if zagueiro == 0 && lateral == 0 && meio == 0 && ataque == 0{
-			return resultado
-		}
-
-		if atleta.PosicaoID == 6 && tecnico != 0{
-			tecnico -= 1
-		}
-		if atleta.PosicaoID == 6{
-			return atleta.Nome
-		}
-	
-
-}*/
 
 func getCartolaData() Response {
 	res, err := http.Get("https://api.cartola.globo.com/atletas/mercado")
