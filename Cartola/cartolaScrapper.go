@@ -83,22 +83,16 @@ func getCartolaData() Response {
 	return data
 }
 
-func PrettyPrint(i interface{}) string {
-	s, _ := json.MarshalIndent(i, "", "\t")
-	return string(s)
-}
-
 func formacao(data []Atleta, numLateral, numZagueiro, numMeia, numAtacante int){
-	//c := make(chan string)
+	// retorna os melhores dada a formaçao
 	getAtletaId(data, 1, "Goleiro", 1)
 	getAtletaId(data, 2, "Lateral", numLateral)
 	getAtletaId(data, 3, "Zagueiro", numZagueiro)
 	getAtletaId(data, 4, "Meia", numMeia)
 	getAtletaId(data, 5, "Atacante", numAtacante)
 	getAtletaId(data, 6, "Técnico", 1)
-	//msg := <- c
-	//fmt.Println(msg)
 }
+
 func getAtletaId(data []Atleta, id int, posicao string, cont int){
 	times := make(map[int]string)
 	times[314] = "Avai"
@@ -123,31 +117,16 @@ func getAtletaId(data []Atleta, id int, posicao string, cont int){
 	times[356] = "Fortaleza"
 
 	for _, atleta := range data{
-		var player Atleta
-		player.Nome = atleta.Nome
-		player.RodadaID = atleta.RodadaID
-		player.JogosNum = atleta.JogosNum
-		player.MediaNum = atleta.MediaNum
-		player.PrecoNum = atleta.PrecoNum
-		player.ClubeID = atleta.ClubeID
-		player.PosicaoID  = atleta.PosicaoID
-		player.PontosNum = atleta.PontosNum
-		player.VariacaoNum = atleta.VariacaoNum
-
-		if player.PosicaoID == id && cont != 0{
-			fmt.Println(posicao + ":", player.Nome + "(" + times[player.ClubeID] + ")",  "Pontuação:", player.PontosNum, "Media:", player.MediaNum)
+		if atleta.PosicaoID == id && cont != 0{
+			fmt.Println(posicao + ":", atleta.Nome + "(" + times[atleta.ClubeID] + ")",  "Pontuação:", atleta.PontosNum, "Media:", atleta.MediaNum)
 			cont -= 1
 		}
-
-		// if cont == 0{
-		// 	break
-		// }
 	}
 }
 
 var wg sync.WaitGroup
 func main() {
-	// baseUrl := "https://api.cartola.globo.com/"
+	// define os times e os ids dele
 	times := make(map[int]string)
 	times[314] = "Avai"
 	times[285] = "Internacional"
@@ -170,8 +149,10 @@ func main() {
 	times[277] = "Santos"
 	times[356] = "Fortaleza"
 
+	//consome os dados do cartola
 	data := getCartolaData()
 
+	//transforma os dados mais importantes em uma slice que contem structs do atleta
 	var atletas []Atleta
 
 	for _, atleta := range data.Atletas {
@@ -189,6 +170,10 @@ func main() {
 		atletas = append(atletas, player)
 	}
 
+
+	// Estatisticas Do Cartola
+
+	// ordena por posicao e depois por pontuaçao
 	sort.SliceStable(atletas, 
 		func (i, j int) bool{
 			if atletas[i].PosicaoID != atletas[j].PosicaoID{
@@ -196,30 +181,35 @@ func main() {
 			}
 			return atletas[i].PontosNum > atletas[j].PontosNum
 	})
+	file, _ := json.MarshalIndent(atletas, "", " ")
+	_ = ioutil.WriteFile("cartola.json", file, 0644)
 	
-	fmt.Println("Time da Rodada")
+	melhor_jogador_rodada := atletas[0]
 	start := time.Now()
+	// paralelismo
 	wg.Add(1)
-	go formacao(atletas, 0, 3, 4, 3)
-	wg.Done()
-
-	
-	wg.Wait()
+	fmt.Println("Time da Rodada")
+	formacao(atletas, 0, 3, 4, 3)
 
 	sort.SliceStable(atletas, 
 		func (i, j int) bool{
 			return atletas[i].MediaNum > atletas[j].MediaNum
 	})
+
+	melhor_jogador_campeonato := atletas[0]
 	fmt.Println("----------------------------------------------")
 	fmt.Println("Time do Campeonato")
 	formacao(atletas, 0, 3, 4, 3)
 
 	fmt.Println("----------------------------------------------")
 	fmt.Println("Pior time da Rodada")
+
 	sort.SliceStable(atletas, 
 		func (i, j int) bool{
 			return atletas[i].PontosNum < atletas[j].PontosNum
 	})
+
+	pior_jogador_rodada := atletas[0]
 	formacao(atletas, 0, 3, 4, 3)
 	
 	fmt.Println("----------------------------------------------")
@@ -229,15 +219,16 @@ func main() {
 		func (i, j int) bool{
 			return atletas[i].MediaNum < atletas[j].MediaNum
 	})
-
+	pior_jogador_campeonato := atletas[0]
 	formacao(atletas, 0, 3, 4, 3)
-	sort.SliceStable(atletas, 
-		func (i, j int) bool{
-			return atletas[i].PontosNum > atletas[j].PontosNum
-	})
+
+	// sort.SliceStable(atletas, 
+	// 	func (i, j int) bool{
+	// 		return atletas[i].PontosNum > atletas[j].PontosNum
+	// })
 
 	fmt.Println("----------------------------------------------")
-	fmt.Println("O melhor jodador da rodada:", atletas[0].Nome+ "(" + times[atletas[0].ClubeID] + ")", atletas[0].PontosNum)
+	fmt.Println("O melhor jodador da rodada:", melhor_jogador_rodada.Nome+ "(" + times[melhor_jogador_rodada.ClubeID] + ")", melhor_jogador_rodada.PontosNum)
 
 	sort.SliceStable(atletas, 
 		func (i, j int) bool{
@@ -245,30 +236,27 @@ func main() {
 	})
 
 	fmt.Println("----------------------------------------------")
-	fmt.Println("O melhor jodador do campeonato", atletas[0].Nome + "(" + times[atletas[0].ClubeID] + ")", atletas[0].MediaNum, atletas[0].PosicaoID)
+	fmt.Println("O melhor jodador do campeonato", melhor_jogador_campeonato.Nome + "(" + times[melhor_jogador_campeonato.ClubeID] + ")", melhor_jogador_campeonato.MediaNum, melhor_jogador_campeonato.PosicaoID)
 
-	sort.SliceStable(atletas, 
-		func (i, j int) bool{
-			return atletas[i].PontosNum < atletas[j].PontosNum
-	})
+	// sort.SliceStable(atletas, 
+	// 	func (i, j int) bool{
+	// 		return atletas[i].PontosNum < atletas[j].PontosNum
+	// })
 
 	fmt.Println("----------------------------------------------")
-	fmt.Println("O pior jogador da rodada", atletas[0].Nome + "(" + times[atletas[0].ClubeID] + ")", atletas[0].PontosNum)
+	fmt.Println("O pior jogador da rodada", pior_jogador_rodada.Nome + "(" + times[pior_jogador_rodada.ClubeID] + ")", pior_jogador_rodada.PontosNum)
 
-	sort.SliceStable(atletas, 
-		func (i, j int) bool{
-			return atletas[i].MediaNum < atletas[j].MediaNum
-	})
+	// sort.SliceStable(atletas, 
+	// 	func (i, j int) bool{
+	// 		return atletas[i].MediaNum < atletas[j].MediaNum
+	// })
+
 	fmt.Println("----------------------------------------------")
-	fmt.Println("O pior jogador do campeonato"+ "(" + times[atletas[0].ClubeID] + ")",atletas[0].Nome, atletas[0].MediaNum)
+	fmt.Println("O pior jogador do campeonato", pior_jogador_campeonato.Nome + "(" + times[pior_jogador_campeonato.ClubeID] + ")", pior_jogador_campeonato.MediaNum)
 	elapsed := time.Since(start)
 	fmt.Println("----------------------------------------------")
 	fmt.Println("tempo com paralelismo:", elapsed)
 	
-
-
-	
-
-	// file, _ := json.MarshalIndent(atletas, "", " ")
-	// _ = ioutil.WriteFile("cartola.json", file, 0644)
+	wg.Done()
+	wg.Wait()
 }
